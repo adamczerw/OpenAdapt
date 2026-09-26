@@ -60,6 +60,7 @@ openadapt capture start --name <name> [options]
 | `--interval` | No | Screenshot interval in seconds (default: 0.1) |
 | `--no-screenshots` | No | Disable screenshot capture |
 | `--no-keyboard` | No | Disable keyboard event capture |
+| `--monitor`, `-m` | No | Monitor to record: `0` = all monitors combined (default), `1` = primary, `2` = secondary, … |
 
 **Examples:**
 
@@ -72,6 +73,9 @@ openadapt capture start --name audio-task --no-screenshots
 
 # Demonstration collection with slower screenshot interval
 openadapt capture start --name slow-task --interval 1.0
+
+# Record only the secondary monitor on a multi-monitor setup
+openadapt capture start --name login-task --monitor 2
 ```
 
 ### capture stop
