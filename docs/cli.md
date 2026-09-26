@@ -284,8 +284,9 @@ openadapt serve [options]
 
 | Argument | Required | Description |
 |----------|----------|-------------|
-| `--port` | No | Server port (default: 8080) |
-| `--host` | No | Host address (default: localhost) |
+| `--port`, `-p` | No | Server port (default: 8080) |
+| `--output`, `-o` | No | Training output directory to serve (default: training_output) |
+| `--open/--no-open` | No | Open the dashboard in the browser (default: open) |
 
 Access the dashboard at `http://localhost:8080`.
 

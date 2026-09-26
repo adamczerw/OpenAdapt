@@ -423,13 +423,26 @@ def serve(port: int, output: str, open: bool):
         click.echo(f"Starting server on port {port}...")
         click.echo(f"Serving from: {output}")
 
-        from openadapt_ml.cloud.local import serve_dashboard
+        import argparse
+        from pathlib import Path
 
-        serve_dashboard(
-            output_dir=output,
-            port=port,
-            open_browser=open,
+        from openadapt_ml.cloud import local
+
+        # cmd_serve takes argparse args and serves <TRAINING_OUTPUT>/current,
+        # so point TRAINING_OUTPUT at --output.
+        local.TRAINING_OUTPUT = Path(output)
+        exit_code = local.cmd_serve(
+            argparse.Namespace(
+                port=port,
+                open=open,
+                quiet=False,
+                no_regenerate=False,
+                benchmark=None,
+                start_page=None,
+            )
         )
+        if exit_code:
+            sys.exit(exit_code)
 
     except ImportError:
         click.echo("Error: openadapt-ml not installed.", err=True)
