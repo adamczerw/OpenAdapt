@@ -64,7 +64,7 @@ login-demo   23       1m 15s     2026-01-15
 Learn an agent policy from your demonstration trajectory:
 
 ```bash
-openadapt train start --capture my-task --model qwen3vl-2b
+openadapt train start --capture my-task --config configs/qwen3vl_capture.yaml
 ```
 
 Monitor policy learning progress:
@@ -121,7 +121,7 @@ openadapt capture start --name email-reply
 openadapt capture view email-reply
 
 # 5. Learn a policy
-openadapt train start --capture email-reply --model qwen3vl-2b
+openadapt train start --capture email-reply --config configs/qwen3vl_capture.yaml
 
 # 6. Wait for policy learning to complete
 openadapt train status

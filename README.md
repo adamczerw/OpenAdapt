@@ -69,7 +69,8 @@ openadapt capture start --name my-task
 ### 2. Train a model
 
 ```bash
-openadapt train start --capture my-task --model qwen3vl-2b
+# The config YAML selects the model and hyperparameters (see configs/ in openadapt-ml)
+openadapt train start --capture my-task --config configs/qwen3vl_capture.yaml
 ```
 
 ### 3. Evaluate
@@ -124,7 +125,8 @@ openadapt capture stop                    Stop recording
 openadapt capture list                    List captures
 openadapt capture view <name>             Open capture viewer
 
-openadapt train start --capture <name>    Train model on capture
+openadapt train start --capture <name> --config <yaml>
+                                          Train model on capture
 openadapt train status                    Check training progress
 openadapt train stop                      Stop training
 

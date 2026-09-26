@@ -140,39 +140,32 @@ Commands for policy learning from demonstrations.
 Start policy learning from a demonstration.
 
 ```bash
-openadapt train start --capture <name> --model <model> [options]
+openadapt train start --capture <path> --config <yaml> [options]
 ```
 
 **Arguments:**
 
 | Argument | Required | Description |
 |----------|----------|-------------|
-| `--capture` | Yes | Name of the demonstration to train on |
-| `--model` | Yes | Model architecture |
-| `--epochs` | No | Number of training epochs (default: 10) |
-| `--batch-size` | No | Batch size (default: 4) |
-| `--learning-rate` | No | Learning rate (default: 1e-4) |
-| `--output` | No | Output directory (default: training_output/) |
+| `--capture`, `-c` | Yes | Path to the capture directory to train on |
+| `--config` | Yes | Training config YAML. It selects the model, LoRA settings, and hyperparameters (epochs, batch size, learning rate) |
+| `--output`, `-o` | No | Output directory (default: training_output) |
+| `--open/--no-open` | No | Open the training dashboard in the browser (default: open) |
 
-**Available Models:**
-
-- `qwen3vl-2b` - Qwen3-VL 2B parameters
-- `qwen3vl-7b` - Qwen3-VL 7B parameters
-- `llava-1.6-7b` - LLaVA 1.6 7B parameters
+Example configs are in the [`configs/`](https://github.com/OpenAdaptAI/openadapt-ml/tree/main/configs) directory of openadapt-ml, e.g. `qwen3vl_capture.yaml` (Qwen3-VL 2B, 4-bit).
 
 **Examples:**
 
 ```bash
 # Basic policy learning
-openadapt train start --capture login-task --model qwen3vl-2b
+openadapt train start --capture login-task --config configs/qwen3vl_capture.yaml
 
-# Policy learning with custom parameters
+# Custom output directory, don't open the dashboard
 openadapt train start \
     --capture login-task \
-    --model qwen3vl-7b \
-    --epochs 20 \
-    --batch-size 2 \
-    --learning-rate 5e-5
+    --config configs/qwen3vl_capture.yaml \
+    --output runs/login-task \
+    --no-open
 ```
 
 ### train status

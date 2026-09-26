@@ -103,7 +103,7 @@ openadapt capture start --name my-task
 ### Learn a Policy
 
 ```bash
-openadapt train start --capture my-task --model qwen3vl-2b
+openadapt train start --capture my-task --config configs/qwen3vl_capture.yaml
 ```
 
 **What You'll See:**

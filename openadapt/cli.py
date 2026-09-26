@@ -7,7 +7,7 @@ Usage:
     openadapt capture list
     openadapt capture view <name>
 
-    openadapt train --capture my-task --model qwen3vl-2b
+    openadapt train start --capture my-task --config configs/qwen3vl_capture.yaml
     openadapt train status
     openadapt train stop
 
@@ -194,7 +194,7 @@ def train():
 
     \b
     Examples:
-        openadapt train start --capture login-flow --model qwen3vl-2b
+        openadapt train start --capture login-flow --config configs/qwen3vl_capture.yaml
         openadapt train status
         openadapt train stop
     """
@@ -203,27 +203,27 @@ def train():
 
 @train.command("start")
 @click.option("--capture", "-c", required=True, help="Path to capture directory")
-@click.option("--model", "-m", default="qwen3vl-2b", help="Model to train")
-@click.option("--config", help="Path to training config YAML")
+@click.option(
+    "--config",
+    required=True,
+    help="Path to training config YAML (selects the model), e.g. configs/qwen3vl_capture.yaml",
+)
 @click.option("--output", "-o", default="training_output", help="Output directory")
 @click.option("--open/--no-open", default=True, help="Open dashboard in browser")
-def train_start(
-    capture: str, model: str, config: Optional[str], output: str, open: bool
-):
+def train_start(capture: str, config: str, output: str, open: bool):
     """Start model training."""
     try:
         click.echo("Starting training...")
         click.echo(f"  Capture: {capture}")
-        click.echo(f"  Model: {model}")
+        click.echo(f"  Config: {config}")
         click.echo(f"  Output: {output}")
 
         # Import and run training
-        from openadapt_ml.scripts.train import train_main
+        from openadapt_ml.scripts.train import main as train_main
 
         train_main(
-            capture=capture,
-            model=model,
-            config=config,
+            capture_path=capture,
+            config_path=config,
             output_dir=output,
             open_dashboard=open,
         )
