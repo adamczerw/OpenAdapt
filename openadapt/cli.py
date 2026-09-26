@@ -2,11 +2,12 @@
 
 Usage:
     openadapt capture start --name my-task
+    openadapt capture start --name my-task --monitor 1
     openadapt capture stop
     openadapt capture list
     openadapt capture view <name>
 
-    openadapt train --capture my-task --model qwen3vl-2b
+    openadapt train start --capture my-task --config configs/qwen3vl_capture.yaml
     openadapt train status
     openadapt train stop
 
@@ -64,10 +65,26 @@ def capture():
 @click.option("--name", "-n", required=True, help="Name for the capture session")
 @click.option("--video/--no-video", default=True, help="Record video")
 @click.option("--audio/--no-audio", default=False, help="Record audio")
-def capture_start(name: str, video: bool, audio: bool):
+@click.option("--monitor", "-m", default=0, help="Monitor index to capture (0 = all monitors combined, 1 = primary, 2 = secondary, …). Run 'capture monitors' to list available monitors.")
+def capture_start(name: str, video: bool, audio: bool, monitor: int):
     """Start a new capture session."""
     try:
         from openadapt_capture import Recorder
+        from openadapt_capture.utils import list_monitors
+
+        monitors = list_monitors()
+        num_physical = len(monitors) - 1
+        if num_physical > 1:
+            click.echo("Available monitors:")
+            for i, m in enumerate(monitors):
+                label = "all monitors combined" if i == 0 else f"monitor {i}"
+                marker = " <-- selected" if i == monitor else ""
+                click.echo(f"  {i}: {label}  ({m['width']}x{m['height']} at {m['left']},{m['top']}){marker}")
+            click.echo("")
+
+        if monitor < 0 or monitor >= len(monitors):
+            click.echo(f"Error: monitor index {monitor} is out of range (0–{len(monitors)-1}).", err=True)
+            sys.exit(1)
 
         click.echo(f"Starting capture session: {name}")
         click.echo("Press Ctrl+C (or Ctrl x3) to stop recording...")
@@ -77,6 +94,7 @@ def capture_start(name: str, video: bool, audio: bool):
             task_description=name,
             capture_video=video,
             capture_audio=audio,
+            monitor_index=monitor,
         ) as recorder:
             recorder.wait_for_ready()
             click.echo("Recording...")
@@ -176,7 +194,7 @@ def train():
 
     \b
     Examples:
-        openadapt train start --capture login-flow --model qwen3vl-2b
+        openadapt train start --capture login-flow --config configs/qwen3vl_capture.yaml
         openadapt train status
         openadapt train stop
     """
@@ -185,27 +203,27 @@ def train():
 
 @train.command("start")
 @click.option("--capture", "-c", required=True, help="Path to capture directory")
-@click.option("--model", "-m", default="qwen3vl-2b", help="Model to train")
-@click.option("--config", help="Path to training config YAML")
+@click.option(
+    "--config",
+    required=True,
+    help="Path to training config YAML (selects the model), e.g. configs/qwen3vl_capture.yaml",
+)
 @click.option("--output", "-o", default="training_output", help="Output directory")
 @click.option("--open/--no-open", default=True, help="Open dashboard in browser")
-def train_start(
-    capture: str, model: str, config: Optional[str], output: str, open: bool
-):
+def train_start(capture: str, config: str, output: str, open: bool):
     """Start model training."""
     try:
         click.echo("Starting training...")
         click.echo(f"  Capture: {capture}")
-        click.echo(f"  Model: {model}")
+        click.echo(f"  Config: {config}")
         click.echo(f"  Output: {output}")
 
         # Import and run training
-        from openadapt_ml.scripts.train import train_main
+        from openadapt_ml.scripts.train import main as train_main
 
         train_main(
-            capture=capture,
-            model=model,
-            config=config,
+            capture_path=capture,
+            config_path=config,
             output_dir=output,
             open_dashboard=open,
         )
@@ -405,13 +423,26 @@ def serve(port: int, output: str, open: bool):
         click.echo(f"Starting server on port {port}...")
         click.echo(f"Serving from: {output}")
 
-        from openadapt_ml.cloud.local import serve_dashboard
+        import argparse
+        from pathlib import Path
 
-        serve_dashboard(
-            output_dir=output,
-            port=port,
-            open_browser=open,
+        from openadapt_ml.cloud import local
+
+        # cmd_serve takes argparse args and serves <TRAINING_OUTPUT>/current,
+        # so point TRAINING_OUTPUT at --output.
+        local.TRAINING_OUTPUT = Path(output)
+        exit_code = local.cmd_serve(
+            argparse.Namespace(
+                port=port,
+                open=open,
+                quiet=False,
+                no_regenerate=False,
+                benchmark=None,
+                start_page=None,
+            )
         )
+        if exit_code:
+            sys.exit(exit_code)
 
     except ImportError:
         click.echo("Error: openadapt-ml not installed.", err=True)
