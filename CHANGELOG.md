@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## Unreleased
+
+### Bug Fixes
+
+- Make `openadapt serve` start the openadapt-ml dashboard server
+  ([`c95e40a`](https://github.com/adamczerw/OpenAdapt/commit/c95e40a2d18c7ac162f1180980cb6c8f78a78264))
+
+- Make `openadapt train start` call openadapt-ml correctly
+  ([`e96a132`](https://github.com/adamczerw/OpenAdapt/commit/e96a132b1bcfce46587365b1769fb40ef2153295))
+
+`--config` is now required (it selects the model) and the unused `--model` option was removed.
+
+### Features
+
+- Add `--monitor` option to `openadapt capture start`
+  ([`9e7a0d6`](https://github.com/adamczerw/OpenAdapt/commit/9e7a0d62d01b6dd161b01dbc00545748804178b2))
+
 <!-- version list -->
 
 ## v1.2.2 (2026-03-04)
